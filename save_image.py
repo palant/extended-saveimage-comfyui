@@ -1,3 +1,4 @@
+
 from comfy.cli_args import args
 import folder_paths
 import json
@@ -28,13 +29,14 @@ class SaveImageExtended:
                 "images": ("IMAGE", ),
                 "filename_prefix": ("STRING", {"default": "ComfyUI"}),
                 "file_type": ([s.FILE_TYPE_PNG, s.FILE_TYPE_JPEG, s.FILE_TYPE_WEBP_LOSSLESS, s.FILE_TYPE_WEBP_LOSSY], ),
+                "save_metadata": ("BOOLEAN", {"default": True}),
             },
             "hidden": {"prompt": "PROMPT", "extra_pnginfo": "EXTRA_PNGINFO"},
         }
 
 
 
-    def save_images(self, images, filename_prefix="ComfyUI", file_type=FILE_TYPE_PNG, prompt=None, extra_pnginfo=None):
+    def save_images(self, images, filename_prefix="ComfyUI", file_type=FILE_TYPE_PNG, save_metadata=True, prompt=None, extra_pnginfo=None):
         output_dir = folder_paths.get_output_directory()
         full_output_folder, filename, counter, subfolder, _ = folder_paths.get_save_image_path(filename_prefix, output_dir, images[0].shape[1], images[0].shape[0])
         extension = {
@@ -52,7 +54,7 @@ class SaveImageExtended:
             kwargs = dict()
             if extension == "png":
                 kwargs["compress_level"] = 4
-                if not args.disable_metadata:
+                if save_metadata and not args.disable_metadata:
                     metadata = PngInfo()
                     if prompt is not None:
                         metadata.add_text("prompt", json.dumps(prompt))
@@ -65,7 +67,7 @@ class SaveImageExtended:
                     kwargs["lossless"] = True
                 else:
                     kwargs["quality"] = 90
-                if not args.disable_metadata:
+                if save_metadata and not args.disable_metadata:
                     metadata = {}
                     if prompt is not None:
                         metadata["prompt"] = prompt
