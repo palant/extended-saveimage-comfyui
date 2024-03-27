@@ -159,7 +159,7 @@ async function handleFile(origHandleFile, file, ...args)
   const metadata = await getMetadata(file);
   if (metadata && metadata.workflow)
     app.loadGraphData(metadata.workflow);
-  if (metadata && metadata.prompt)
+  else if (metadata && metadata.prompt)
     app.loadApiJson(metadata.prompt);
   else
     return origHandleFile.call(this, file, ...args);
